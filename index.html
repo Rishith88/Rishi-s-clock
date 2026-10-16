@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rishi's clock</title>
+<style>
+    body {
+       background-image: url(avengers\ background.jpg);
+       background-repeat: no-repeat;
+       background-size: cover;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column; 
+        align-items: center; 
+        height: 100vh;
+        margin: 0;
+        overflow: hidden; 
+        position: relative;
+    }
+    
+    .desktop-widgets {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 20px 40px;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        z-index: 10;
+    }
+    #desktop-clock {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #333;
+        margin-top: 5px;
+    }
+    #desktop-date {
+        font-size: 1.1rem;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    h1 {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        font-size: 3.5rem;
+        color: #444; 
+        font-weight: bold;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .app-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: white;
+        border: none; 
+        display: none; 
+        flex-direction: column;
+        z-index: 20; 
+        transition: height 0.15s ease-out;
+    }
+    
+    .app-container.minimized {
+        height: 36px !important;
+        bottom: auto;
+    }
+    .app-container.minimized .app-iframe {
+        display: none;
+    }
+
+    .app-header {
+        background: #333;
+        color: white;
+        padding: 6px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1rem;
+        height: 24px;
+        user-select: none;
+        flex-shrink: 0;
+    }
+    
+    .window-controls {
+        display: flex;
+        gap: 6px;
+    }
+    
+    .win-btn {
+        background: #ebebeb;
+        color: #333;
+        border: 1px solid #777;
+        font-size: 0.75rem;
+        font-weight: bold;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .win-btn:hover {
+        background: #ddd;
+    }
+    .win-btn.close-btn:hover {
+        background: #ff5f56;
+        color: white;
+    }
+
+    .app-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #fff;
+    }
+
+    .app-dock {
+        position: absolute;
+        bottom: 20px;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        padding: 10px 20px;
+        border-radius: 20px;
+        display: flex;
+        gap: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 10;
+    }
+    .dock-icon {
+        width: 55px;
+        height: 55px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        padding: 4px;
+        box-sizing: border-box;
+    }
+    .dock-icon:hover {
+        transform: scale(1.1) translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .dock-icon img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+    .dock-icon label {
+        font-size: 0.65rem;
+        font-weight: bold;
+        color: #333;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+    .WelcomeScreen h1 {
+            text-align: center;
+            margin: 0;
+            font-size: 50px;
+            color: aqua;
+            background-color: black;
+            border-radius: 8px;
+            padding: 15px 30px;
+            animation: fadeOut 3s ease-in-out forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+</style>
+</head>
+<body>
+
+    <div class="desktop-widgets">
+        <div id="desktop-date">Loading Date...</div>
+        <div id="desktop-clock">00:00:00 AM</div>
+    </div>
+
+    <div class="WelcomeScreen">
+        <h1>Welcome To Rishi's Avenger's clock</h1>
+    </div>
+
+    <h1>Rishi's Clock</h1>
+
+    <div class="app-container" id="appWindow">
+        <div class="app-header">
+            <span id="appTitle">Application</span>
+            <div class="window-controls">
+                <button class="win-btn" title="Minimize" onclick="toggleMinimize()">—</button>
+                <button class="win-btn close-btn" title="Close" onclick="closeApp()">✕</button>
+            </div>
+        </div>
+        <iframe class="app-iframe" id="appIframe" src=""></iframe>
+    </div>
+
+    <div class="app-dock">
+        <div class="dock-icon" onclick="openApp('timer.html', 'Timer')">
+            <img src="timer.png" alt="Timer Icon">
+            <label>Timer</label>
+        </div>
+        <div class="dock-icon" onclick="openApp('stopwatch.html', 'Stopwatch')">
+            <img src="stopwatch.png" alt="Stopwatch Icon">
+            <label>Stopwatch</label>
+        </div>
+    </div>
+
+<script>
+    function updateISTClock() {
+        const now = new Date();
+        const timeOptions = {
+            timeZone: 'Asia/Kolkata',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        };
+        const dateOptions = {
+            timeZone: 'Asia/Kolkata',
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+
+        document.getElementById('desktop-clock').textContent = now.toLocaleTimeString('en-IN', timeOptions);
+        document.getElementById('desktop-date').textContent = now.toLocaleDateString('en-IN', dateOptions);
+    }
+    updateISTClock();
+    setInterval(updateISTClock, 1000);
+
+    const appWindow = document.getElementById('appWindow');
+    const appIframe = document.getElementById('appIframe');
+    const appTitle = document.getElementById('appTitle');
+
+    function openApp(pageUrl, title) {
+        appWindow.classList.remove('minimized');
+        appIframe.src = pageUrl;         
+        appTitle.textContent = title;    
+        appWindow.style.display = 'flex'; 
+    }
+
+    function closeApp() {
+        appWindow.style.display = 'none'; 
+        appWindow.classList.remove('minimized');
+        appIframe.src = '';              
+    }
+
+    function toggleMinimize() {
+        appWindow.classList.toggle('minimized');
+    }
+</script>
+</body>
+</html>

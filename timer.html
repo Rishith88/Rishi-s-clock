@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rishi's Stopwatch</title>
+    <style>
+        body {
+           background-image: url(Age.jpg);
+           background-repeat: no-repeat;
+           background-size: cover;
+           margin: 0;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+        }
+        h1{
+            font-size: 80px;
+            color: blue;
+        }
+         
+        .count {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            margin: 0;
+            font-size: 100px;
+            text-align: top; 
+        }
+        .buttons {
+            height: 10vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; 
+        }
+        
+        .buttons img {
+            height: 40px; 
+            width: auto;  
+            cursor: pointer;
+        }
+
+        .time-control {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-control input {
+            padding: 8px;
+            font-size: 18px;
+            width: 90px;
+            text-align: center;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .time-control button {
+            padding: 8px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-family: 'Gill Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rishi's Stopwatch</h1>
+    <div>
+        <p class="count" id="countdown">10:00</p>
+    </div>
+    
+    <div class="buttons">
+        <img src="reset.png" alt="reset" id="reset-btn">
+        <img src="start.png" alt="start" id="start-btn">
+        <img src="stop.png" alt="stop" id="stop-btn">
+    </div>
+
+    <div class="time-control">
+        <input type="number" id="time-input" placeholder="Minutes" min="1" max="180">
+        <button id="set-time-btn">Set Time</button>
+    </div>
+
+    <script>
+        let INITIAL_TIME = 600; 
+        let timeLeft = INITIAL_TIME;
+        let timerId = null;
+
+        const countdownEl = document.getElementById('countdown');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timeInput = document.getElementById('time-input');
+        const setTimeBtn = document.getElementById('set-time-btn');
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            countdownEl.textContent = `${formattedMinutes}:${formattedSeconds}`;
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (timerId !== null) return; 
+            
+            timerId = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerId);
+                    timerId = null;
+                    alert("Time's up!");
+                }
+            }, 1000);
+        });
+
+        stopBtn.addEventListener('click', () => {
+            clearInterval(timerId);
+            timerId = null;
+        });
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerId);
+            timerId = null;
+            timeLeft = INITIAL_TIME;
+            updateDisplay();
+        });
+
+        setTimeBtn.addEventListener('click', () => {
+            const minutes = parseInt(timeInput.value);
+            
+            if (isNaN(minutes) || minutes <= 0) {
+                alert("Please enter a valid number of minutes!");
+                return;
+            }
+
+            clearInterval(timerId);
+            timerId = null;
+
+            INITIAL_TIME = minutes * 60;
+            timeLeft = INITIAL_TIME;
+            updateDisplay();
+
+            timeInput.value = '';
+        });
+    </script>
+</body>
+</html>
